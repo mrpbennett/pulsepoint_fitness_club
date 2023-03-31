@@ -27,6 +27,7 @@ const earnersTableHeaders = [
 function App() {
   const [data, setData] = useState([])
   const [earningsData, setEarningsData] = useState([])
+  const [totalEarnings, setTotalEarnings] = useState([])
 
   // Form States
   const [firstName, setFirstName] = useState('')
@@ -114,6 +115,19 @@ function App() {
     }
   }
 
+  const getTotalEarnings = async () => {
+    const {data, error} = await supabase.rpc('totalearnt')
+
+    if (error) {
+      return error
+    }
+
+    if (data) {
+      setTotalEarnings(data)
+      return
+    }
+  }
+
   const sendActivityData = async () => {
     try {
       const {data, error} = await supabase.from('PPStravaActivities').insert([
@@ -142,7 +156,11 @@ function App() {
     getActivityData()
 
     getEarningsData()
+
+    getTotalEarnings()
   }, [])
+
+  console.log(totalEarnings.map(item => item.earnings))
 
   return (
     <>
@@ -233,7 +251,7 @@ function App() {
                   formActive ? setFormActive(false) : setFormActive(true)
                 }}
               >
-                Enter activity
+                Enter your activity
               </button>
             </div>
           </section>
@@ -390,7 +408,7 @@ function App() {
                   setFormActive(false)
                 }}
               >
-                Enter activity
+                Earn some dollar!
               </button>
             </div>
           </section>
@@ -398,7 +416,9 @@ function App() {
         <>
           <section className="relative z-0 mt-6">
             <div className="flex items-center justify-between w-[75%]">
-              <div className="font-extrabold text-4xl">Combined Totals </div>
+              <div className="font-extrabold text-4xl text-gray-800">
+                Combined Totals{' '}
+              </div>
               <div className="font-extrabold text-5xl text-strava font-montserrat">
                 {Math.round(
                   data.reduce((n, {distance}) => n + distance, 0) / 1000,
@@ -417,11 +437,11 @@ function App() {
             </div>
           </section>
 
-          <section>
-            <h2 className="font-extrabold text-4xl">
+          <section className="my-4">
+            <h2 className="font-extrabold text-3xl text-gray-800">
               Number of activites by type
             </h2>
-            <div className="w-4/5 mx-auto">
+            <div className="w-4/5 mx-auto mt-8">
               <div className="flex flex-row justify-between">
                 <div id="walk" className="flex items-center">
                   <div>
@@ -467,7 +487,7 @@ function App() {
                 <div id="weights" className="flex items-center">
                   <div>
                     <span role="img" className="text-6xl mr-2">
-                      💪
+                      🏋️
                     </span>
                   </div>
                   <div className="text-6xl font-bold">
@@ -486,9 +506,9 @@ function App() {
 
           <section className="mt-6">
             <h2 className="font-extrabold text-2xl">Top 5 Earners</h2>
-            <div className="mt-6 flex">
-              <div className="flex-grow">
-                <table className="table-auto min-w-[50%] border border-strava-300">
+            <div className="mt-6 grid grid-cols-2">
+              <div>
+                <table className="table-auto w-full border border-strava-300">
                   <thead className="bg-strava">
                     <tr>
                       {earnersTableHeaders.map(headers => (
@@ -505,9 +525,9 @@ function App() {
                     {earningsData.map(data => (
                       <tr
                         key={data.firstName + data.lastName}
-                        className="even:bg-purple-100"
+                        className="even:bg-purple-100 "
                       >
-                        <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
+                        <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat capitalize">
                           {data.firstName + ' ' + data.lastName}
                         </td>
                         <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
@@ -518,13 +538,10 @@ function App() {
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-center text-2xl">
-                <div>total earnt</div>
-                <div className="ml-10">
-                  $
-                  {Math.round(
-                    data.reduce((n, {earnings}) => n + earnings, 0),
-                  ).toFixed(0)}
+              <div className="text-4xl text-center flex items-center justify-center">
+                <div className="capitalize">total earnt</div>
+                <div className="ml-10 font-bold">
+                  ${totalEarnings.map(item => item.earnings)}
                 </div>
               </div>
             </div>
@@ -548,7 +565,7 @@ function App() {
               <tbody>
                 {data.map(data => (
                   <tr key={data.id} className="even:bg-purple-100">
-                    <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
+                    <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat capitalize">
                       {data.firstName + ' ' + data.lastName}
                     </td>
                     <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
