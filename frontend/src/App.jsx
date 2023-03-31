@@ -15,7 +15,7 @@ const mainTableHeaders = [
   {id: 1, label: 'Name'},
   {id: 2, label: 'Activity'},
   {id: 3, label: 'Distance (km)'},
-  {id: 4, label: 'Moving Time (mins)'},
+  {id: 4, label: 'Workout Time (mins)'},
   {id: 5, label: 'Type'},
 ]
 
@@ -23,11 +23,16 @@ const earnersTableHeaders = [
   {id: 1, label: 'Name'},
   {id: 2, label: 'Earnings'},
 ]
+const prestonTableHeaders = [
+  {id: 1, label: 'Name'},
+  {id: 2, label: 'Earnings'},
+  {id: 3, label: 'Workouts'},
+]
 
 function App() {
-  const [data, setData] = useState([])
-  const [earningsData, setEarningsData] = useState([])
-  const [totalEarnings, setTotalEarnings] = useState([])
+  const [activityData, setActivityData] = useState([])
+  const [topTenData, setTopTenData] = useState([])
+  const [prestonWorkouts, setPrestonWorkouts] = useState([])
 
   // Form States
   const [firstName, setFirstName] = useState('')
@@ -55,7 +60,6 @@ function App() {
   // Handles the error / success messages popup
   function popupValidation(type, message) {
     if (type === 'success') {
-      setLoading(false)
       setSuccess(true)
       setSuccessMessage(message)
 
@@ -63,23 +67,18 @@ function App() {
         window.location.reload()
       }, 2000)
     } else if (type === 'warning') {
-      setLoading(false)
       setWarning(true)
       setWarningMessage(message)
 
       setTimeout(() => {
-        setError(false)
-        setLoading(false)
-        window.location.reload()
+        setWarning(false)
       }, 2500)
     } else if (type === 'error') {
-      setLoading(false)
       setError(true)
       setErrorMessage(message)
 
       setTimeout(() => {
         setError(false)
-        setLoading(false)
         window.location.reload()
       }, 2500)
     }
@@ -87,7 +86,23 @@ function App() {
 
   const getActivityData = async () => {
     const {data, error} = await supabase
-      .from('PPStravaActivities')
+      .from('PPFitnessActivities')
+      .select('*')
+      .order('id', {ascending: false})
+
+    if (error) {
+      return error
+    }
+
+    if (data) {
+      setActivityData(data)
+      return
+    }
+  }
+
+  const getTop10ActivityData = async () => {
+    const {data, error} = await supabase
+      .from('PPFitnessActivities')
       .select('*')
       .order('id', {ascending: false})
       .limit(10)
@@ -97,70 +112,90 @@ function App() {
     }
 
     if (data) {
-      setData(data)
+      setTopTenData(data)
       return
     }
   }
 
-  const getEarningsData = async () => {
-    const {data, error} = await supabase.rpc('topearners').limit(5)
+  const getPrestonWorkouts = async () => {
+    const {data, error} = await supabase
+      .rpc('prestonfitness')
+      .order('earnings', {ascending: false})
+      .limit(5)
 
     if (error) {
       return error
     }
 
     if (data) {
-      setEarningsData(data)
+      setPrestonWorkouts(data)
       return
     }
   }
 
-  const getTotalEarnings = async () => {
-    const {data, error} = await supabase.rpc('totalearnt')
+  const handleSubmit = async () => {
+    if (firstName === '') {
+      popupValidation('warning', 'Please enter your first name')
+    } else if (lastName === '') {
+      popupValidation('warning', 'Please enter your last name')
+    } else if (activityName === '') {
+      popupValidation('warning', 'Please enter a Work Type (e.g. Run)')
+    } else if (distance === '') {
+      popupValidation(
+        'warning',
+        'Please enter a distance in kilometres (e.g. 5.5)',
+      )
+    } else if (movingTime === '') {
+      popupValidation('warning', 'Please enter a workout time in minutes')
+    } else if (sportType === '') {
+      popupValidation('warning', 'Please set a Acvitity type')
+    } else {
+      try {
+        const {data, error} = await supabase
+          .from('PPFitnessActivities')
+          .insert([
+            {
+              firstName: firstName,
+              lastName: lastName,
+              activityName: activityName,
+              distance: distance === '' ? 0 : distance * 1000, // convert to metres
+              movingTime: movingTime * 60, // convert to seconds
+              sportType: sportType,
+              earnings: 1,
+              date: new Date().toISOString().split('T')[0],
+            },
+          ])
 
-    if (error) {
-      return error
-    }
+        popupValidation('success', 'Successfully added workout')
 
-    if (data) {
-      setTotalEarnings(data)
-      return
-    }
-  }
+        // Reset form
+        setFirstName('')
+        setLastName('')
+        setActivityName('')
+        setDistance('')
+        setMovingTime('')
+        setSportType('')
 
-  const sendActivityData = async () => {
-    try {
-      const {data, error} = await supabase.from('PPStravaActivities').insert([
-        {
-          firstName: firstName,
-          lastName: lastName,
-          activityName: activityName,
-          distance: distance * 1000, // convert to metres
-          movingTime: movingTime * 60, // convert to seconds
-          sportType: sportType,
-          earnings: 1,
-          date: new Date().toISOString().split('T')[0],
-        },
-      ])
+        // Close form
+        setFormActive(false)
 
-      if (data) {
-        popupValidation('success', 'Successfully added new audience constraint')
+        if (error) {
+          popupValidation('error', error.message)
+        }
+      } catch (error) {
+        popupValidation('error', 'Something went wrong')
+        console.log('error', error)
       }
-    } catch (error) {
-      popupValidation('error', 'Something went wrong')
-      console.log('error', error)
     }
   }
 
   useEffect(() => {
     getActivityData()
 
-    getEarningsData()
+    getTop10ActivityData()
 
-    getTotalEarnings()
+    getPrestonWorkouts()
   }, [])
-
-  console.log(totalEarnings.map(item => item.earnings))
 
   return (
     <>
@@ -332,7 +367,7 @@ function App() {
                 <div id="moving-Time">
                   <div className="mt-[1.65rem]">
                     <label className="mb-2 block text-sm font-medium  text-gray-900">
-                      Moving time
+                      Workout time
                     </label>
                     <input
                       type="text"
@@ -402,13 +437,14 @@ function App() {
             </form>
             <div>
               <button
+                type="submit"
                 className="bg-strava py-2 px-6 rounded-md text-white font-medium my-2"
                 onClick={() => {
-                  sendActivityData()
-                  setFormActive(false)
+                  console.log('submitting')
+                  handleSubmit()
                 }}
               >
-                Earn some dollar!
+                Add Workout
               </button>
             </div>
           </section>
@@ -421,7 +457,8 @@ function App() {
               </div>
               <div className="font-extrabold text-5xl text-strava font-montserrat">
                 {Math.round(
-                  data.reduce((n, {distance}) => n + distance, 0) / 1000,
+                  activityData.reduce((n, {distance}) => n + distance, 0) /
+                    1000,
                 ).toFixed(0)}{' '}
                 km
               </div>
@@ -430,7 +467,8 @@ function App() {
               </div>
               <div className="font-extrabold text-5xl text-strava font-montserrat">
                 {Math.round(
-                  data.reduce((n, {movingTime}) => n + movingTime, 0) / 3600,
+                  activityData.reduce((n, {movingTime}) => n + movingTime, 0) /
+                    3600,
                 ).toFixed(0)}{' '}
                 hrs
               </div>
@@ -450,7 +488,13 @@ function App() {
                     </span>
                   </div>
                   <div className="text-6xl font-bold">
-                    {data.filter(item => item.sportType === 'Walk').length}
+                    {
+                      activityData.filter(
+                        item =>
+                          item.sportType === 'Walk' ||
+                          item.sportType === 'Hike',
+                      ).length
+                    }
                   </div>
                 </div>
                 <div id="swim" className="flex items-center">
@@ -460,7 +504,10 @@ function App() {
                     </span>
                   </div>
                   <div className="text-6xl font-bold">
-                    {data.filter(item => item.sportType === 'Swim').length}
+                    {
+                      activityData.filter(item => item.sportType === 'Swim')
+                        .length
+                    }
                   </div>
                 </div>
                 <div id="bike" className="flex items-center">
@@ -470,7 +517,16 @@ function App() {
                     </span>
                   </div>
                   <div className="text-6xl font-bold">
-                    {data.filter(item => item.sportType === 'Ride').length}
+                    {
+                      activityData.filter(
+                        item =>
+                          item.sportType === 'Ride' ||
+                          item.sportType === 'Gravel Ride' ||
+                          item.sportType === 'Virtual Ride' ||
+                          item.sportType === 'Mountain Bike Ride' ||
+                          item.sportType === 'EBike Ride',
+                      ).length
+                    }
                   </div>
                 </div>
                 <div id="run" className="flex items-center">
@@ -480,7 +536,14 @@ function App() {
                     </span>
                   </div>
                   <div className="text-6xl font-bold">
-                    {data.filter(item => item.sportType === 'Run').length}
+                    {
+                      activityData.filter(
+                        item =>
+                          item.sportType === 'Run' ||
+                          item.sportType === 'Virtual Run' ||
+                          item.sportType === 'Trail Run',
+                      ).length
+                    }
                   </div>
                 </div>
 
@@ -492,10 +555,14 @@ function App() {
                   </div>
                   <div className="text-6xl font-bold">
                     {
-                      data.filter(
+                      activityData.filter(
                         item =>
                           item.sportType === 'Workout' ||
-                          item.sportType === 'WeightTraining',
+                          item.sportType === 'Weight Training' ||
+                          item.sportType === 'Crossfit' ||
+                          item.sportType ===
+                            'High Intensity Interval Training' ||
+                          item.sportType === 'Prestons Fitness',
                       ).length
                     }
                   </div>
@@ -505,13 +572,15 @@ function App() {
           </section>
 
           <section className="mt-6">
-            <h2 className="font-extrabold text-2xl">Top 5 Earners</h2>
+            <h2 className="font-extrabold text-2xl">
+              Top 5 Prestons Fitness athletes
+            </h2>
             <div className="mt-6 grid grid-cols-2">
               <div>
                 <table className="table-auto w-full border border-strava-300">
                   <thead className="bg-strava">
                     <tr>
-                      {earnersTableHeaders.map(headers => (
+                      {prestonTableHeaders.map(headers => (
                         <th
                           key={headers.id}
                           className="py-3 px-6 text-xs font-bold uppercase tracking-wider text-white font-montserrat text-center"
@@ -522,7 +591,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {earningsData.map(data => (
+                    {prestonWorkouts.map(data => (
                       <tr
                         key={data.firstName + data.lastName}
                         className="even:bg-purple-100 "
@@ -533,22 +602,19 @@ function App() {
                         <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
                           ${data.earnings}
                         </td>
+                        <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
+                          {data.count}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="text-4xl text-center flex items-center justify-center">
-                <div className="capitalize">total earnt</div>
-                <div className="ml-10 font-bold">
-                  ${totalEarnings.map(item => item.earnings)}
-                </div>
-              </div>
             </div>
           </section>
 
+          <h2 className="font-extrabold my-4 text-2xl">Latest 10 Activites</h2>
           <section className="mt-6">
-            <h2 className="font-extrabold text-2xl">Latest 10 Activites</h2>
             <table className="table-auto min-w-full border border-strava-300">
               <thead className="bg-strava">
                 <tr>
@@ -563,7 +629,7 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {data.map(data => (
+                {topTenData.map(data => (
                   <tr key={data.id} className="even:bg-purple-100">
                     <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat capitalize">
                       {data.firstName + ' ' + data.lastName}
