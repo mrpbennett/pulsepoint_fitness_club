@@ -37,7 +37,7 @@ def get_club_activities():
     url = "https://www.strava.com/api/v3/clubs/teampulsepoint/activities"
 
     headers = {"Authorization": f"Bearer {get_strava_token()}"}
-    param = {"per_page": 6, "page": 1}
+    param = {"per_page": 10, "page": 1}
     return requests.get(url, headers=headers, params=param).json()
 
 
@@ -63,6 +63,8 @@ def main():
                     "distance": round(activity["distance"]),
                     "movingTime": round(activity["moving_time"]),
                     "sportType": activity["sport_type"],
+                    "earnings": 1,
+                    "date": today,
                 }
 
                 incoming_activities.append(athlete_activity)
@@ -85,6 +87,8 @@ def main():
                 "distance": round(db_activity["distance"]),
                 "movingTime": round(db_activity["movingTime"]),
                 "sportType": db_activity["sportType"],
+                "earnings": db_activity["earnings"],
+                "date": db_activity["date"],
             }
 
             table_activites.append(result)
