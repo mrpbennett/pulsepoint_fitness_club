@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 import requests
@@ -60,9 +61,13 @@ def main():
                     "firstName": activity["athlete"]["firstname"],
                     "lastName": activity["athlete"]["lastname"],
                     "activityName": activity["name"],
-                    "distance": round(activity["distance"]),
-                    "movingTime": round(activity["moving_time"]),
-                    "sportType": activity["sport_type"],
+                    "distance": activity["distance"],
+                    "movingTime": activity["moving_time"],
+                    "sportType": " ".join(
+                        re.findall(
+                            r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))", activity["sport_type"]
+                        )
+                    ),
                     "earnings": 1,
                     "date": today,
                 }
@@ -76,7 +81,7 @@ def main():
 
     # 2. Get activities from the database and place inside table_activites
     try:
-        db_activities = supabase.table("PPStravaActivities").select("*").execute()
+        db_activities = supabase.table("PPFitnessActivities").select("*").execute()
 
         # clean up db_activities by removing id
         for db_activity in db_activities.data:
@@ -84,9 +89,13 @@ def main():
                 "firstName": db_activity["firstName"],
                 "lastName": db_activity["lastName"],
                 "activityName": db_activity["activityName"],
-                "distance": round(db_activity["distance"]),
-                "movingTime": round(db_activity["movingTime"]),
-                "sportType": db_activity["sportType"],
+                "distance": db_activity["distance"],
+                "movingTime": db_activity["movingTime"],
+                "sportType": " ".join(
+                    re.findall(
+                        r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))", db_activity["sportType"]
+                    )
+                ),
                 "earnings": db_activity["earnings"],
                 "date": db_activity["date"],
             }
@@ -110,7 +119,7 @@ def main():
     # 3. Insert the activities into the database
     try:
         for activity in activities_to_insert:
-            supabase.table("PPStravaActivities").insert(activity).execute()
+            supabase.table("PPFitnessActivities").insert(activity).execute()
     except Exception as error:
         raise error
 
