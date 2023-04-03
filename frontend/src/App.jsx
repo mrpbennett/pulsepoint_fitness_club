@@ -6,10 +6,10 @@ import {
   XCircleIcon,
 } from '@heroicons/react/solid'
 import {Fragment, useEffect, useState} from 'react'
-import sportTypes from './data/sportTypes'
-import supabase from './modules/supabase'
-
 import PPLogo from './assets/pp-logo.png'
+import sportTypes from './data/sportTypes'
+import {pageView} from './modules/ga'
+import supabase from './modules/supabase'
 
 const mainTableHeaders = [
   {id: 1, label: 'Name'},
@@ -174,6 +174,10 @@ function App() {
         // Close form
         setFormActive(false)
 
+        if (sportType === 'Prestons Fitness') {
+          window.location.href = 'https://prestonconnors.com/livestream'
+        }
+
         if (error) {
           popupValidation('error', error.message)
         }
@@ -184,7 +188,11 @@ function App() {
     }
   }
 
+  console.log(window.location.pathname)
+
   useEffect(() => {
+    pageView(window.location.pathname)
+
     getActivityData()
 
     getTop10ActivityData()
