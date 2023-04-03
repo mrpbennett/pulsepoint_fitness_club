@@ -140,11 +140,6 @@ function App() {
       popupValidation('warning', 'Please enter your last name')
     } else if (activityName === '') {
       popupValidation('warning', 'Please enter a Work Type (e.g. Run)')
-    } else if (distance === '') {
-      popupValidation(
-        'warning',
-        'Please enter a distance in kilometres (e.g. 5.5)',
-      )
     } else if (movingTime === '') {
       popupValidation('warning', 'Please enter a workout time in minutes')
     } else if (sportType === '') {
