@@ -174,6 +174,7 @@ function App() {
         // Close form
         setFormActive(false)
 
+        // Redirect to Preston's Fitness page after a 'Preston' workout is added
         if (sportType === 'Prestons Fitness') {
           window.location.href = 'https://prestonconnors.com/livestream'
         }
