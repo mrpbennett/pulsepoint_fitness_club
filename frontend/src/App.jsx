@@ -354,7 +354,7 @@ function App() {
                 <div id="distance">
                   <div className="mt-[1.65rem]">
                     <label className="mb-2 block text-sm font-medium  text-gray-900">
-                      Distance
+                      Distance (km)
                     </label>
                     <input
                       type="text"
@@ -369,7 +369,7 @@ function App() {
                 <div id="moving-Time">
                   <div className="mt-[1.65rem]">
                     <label className="mb-2 block text-sm font-medium  text-gray-900">
-                      Workout time
+                      Workout time (mins)
                     </label>
                     <input
                       type="text"
