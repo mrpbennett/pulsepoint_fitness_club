@@ -19,10 +19,6 @@ const mainTableHeaders = [
   {id: 5, label: 'Type'},
 ]
 
-const earnersTableHeaders = [
-  {id: 1, label: 'Name'},
-  {id: 2, label: 'Earnings'},
-]
 const prestonTableHeaders = [
   {id: 1, label: 'Name'},
   {id: 2, label: 'Earnings'},
@@ -37,10 +33,10 @@ function App() {
   // Form States
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [activityName, setActivityName] = useState('')
+  const [activityName, setActivityName] = useState('Gains 4 Gains')
   const [distance, setDistance] = useState('')
-  const [movingTime, setMovingTime] = useState('')
-  const [sportType, setSportType] = useState('')
+  const [movingTime, setMovingTime] = useState('30')
+  const [sportType, setSportType] = useState('Prestons Fitness')
 
   // State for Form Apperance
   const [formActive, setFormActive] = useState(false)
@@ -200,6 +196,8 @@ function App() {
 
     getPrestonWorkouts()
   }, [])
+
+  console.log('sportType', sportType)
 
   return (
     <>
@@ -389,7 +387,7 @@ function App() {
                     </Listbox.Label>
                     <Listbox.Button className="relative mt-2 w-60 cursor-default rounded-lg border border-zinc-500 bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm ">
                       {sportType === '' ? (
-                        'Select a sport type'
+                        'Prestons Fitness'
                       ) : (
                         <span className="font-normal">{sportType}</span>
                       )}
