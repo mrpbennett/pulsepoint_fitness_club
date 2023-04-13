@@ -38,7 +38,7 @@ def get_club_activities():
     url = "https://www.strava.com/api/v3/clubs/teampulsepoint/activities"
 
     headers = {"Authorization": f"Bearer {get_strava_token()}"}
-    param = {"per_page": 10, "page": 1}
+    param = {"per_page": 15, "page": 1}
     return requests.get(url, headers=headers, params=param).json()
 
 
@@ -58,12 +58,12 @@ def main():
             # Loop through response and get the data we need to insert into the database
             for activity in get_club_activities():
                 athlete_activity = {
-                    "firstName": activity["athlete"]["firstname"],
-                    "lastName": activity["athlete"]["lastname"],
-                    "activityName": activity["name"],
+                    "first_name": activity["athlete"]["firstname"],
+                    "last_name": activity["athlete"]["lastname"],
+                    "activity_name": activity["name"],
                     "distance": activity["distance"],
-                    "movingTime": activity["moving_time"],
-                    "sportType": " ".join(
+                    "moving_time": activity["moving_time"],
+                    "sport_type": " ".join(
                         re.findall(
                             r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))", activity["sport_type"]
                         )
@@ -86,12 +86,12 @@ def main():
         # clean up db_activities by removing id
         for db_activity in db_activities.data:
             result = {
-                "firstName": db_activity["firstName"],
-                "lastName": db_activity["lastName"],
-                "activityName": db_activity["activityName"],
+                "first_name": db_activity["firstName"],
+                "last_name": db_activity["lastName"],
+                "activity_name": db_activity["activityName"],
                 "distance": db_activity["distance"],
-                "movingTime": db_activity["movingTime"],
-                "sportType": " ".join(
+                "moving_time": db_activity["movingTime"],
+                "sport_type": " ".join(
                     re.findall(
                         r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))", db_activity["sportType"]
                     )
@@ -122,6 +122,8 @@ def main():
             supabase.table("PPFitnessActivities").insert(activity).execute()
     except Exception as error:
         raise error
+
+    print("Done! \n")
 
 
 if __name__ == "__main__":

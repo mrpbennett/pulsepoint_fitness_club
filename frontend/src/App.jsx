@@ -146,12 +146,12 @@ function App() {
           .from('PPFitnessActivities')
           .insert([
             {
-              firstName: firstName,
-              lastName: lastName,
-              activityName: activityName,
+              first_name: firstName,
+              last_name: lastName,
+              activity_name: activityName,
               distance: distance === '' ? 0 : distance * 1000, // convert to metres
-              movingTime: movingTime * 60, // convert to seconds
-              sportType: sportType,
+              moving_time: movingTime * 60, // convert to seconds
+              sport_type: sportType,
               earnings: 1,
               date: new Date().toISOString().split('T')[0],
             },
