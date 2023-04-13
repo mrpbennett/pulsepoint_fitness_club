@@ -30,6 +30,8 @@ function App() {
   const [topTenData, setTopTenData] = useState([])
   const [prestonWorkouts, setPrestonWorkouts] = useState([])
 
+  console.log(prestonWorkouts)
+
   // Form States
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -184,8 +186,6 @@ function App() {
       }
     }
   }
-
-  console.log(window.location.pathname)
 
   useEffect(() => {
     pageView(window.location.pathname)
@@ -467,8 +467,10 @@ function App() {
               </div>
               <div className="font-extrabold text-5xl text-strava font-montserrat">
                 {Math.round(
-                  activityData.reduce((n, {movingTime}) => n + movingTime, 0) /
-                    3600,
+                  activityData.reduce(
+                    (n, {moving_time}) => n + moving_time,
+                    0,
+                  ) / 3600,
                 ).toFixed(0)}{' '}
                 hrs
               </div>
@@ -491,8 +493,8 @@ function App() {
                     {
                       activityData.filter(
                         item =>
-                          item.sportType === 'Walk' ||
-                          item.sportType === 'Hike',
+                          item.sport_type === 'Walk' ||
+                          item.sport_type === 'Hike',
                       ).length
                     }
                   </div>
@@ -505,7 +507,7 @@ function App() {
                   </div>
                   <div className="text-6xl font-bold">
                     {
-                      activityData.filter(item => item.sportType === 'Swim')
+                      activityData.filter(item => item.sport_type === 'Swim')
                         .length
                     }
                   </div>
@@ -520,11 +522,11 @@ function App() {
                     {
                       activityData.filter(
                         item =>
-                          item.sportType === 'Ride' ||
-                          item.sportType === 'Gravel Ride' ||
-                          item.sportType === 'Virtual Ride' ||
-                          item.sportType === 'Mountain Bike Ride' ||
-                          item.sportType === 'EBike Ride',
+                          item.sport_type === 'Ride' ||
+                          item.sport_type === 'Gravel Ride' ||
+                          item.sport_type === 'Virtual Ride' ||
+                          item.sport_type === 'Mountain Bike Ride' ||
+                          item.sport_type === 'EBike Ride',
                       ).length
                     }
                   </div>
@@ -539,9 +541,9 @@ function App() {
                     {
                       activityData.filter(
                         item =>
-                          item.sportType === 'Run' ||
-                          item.sportType === 'Virtual Run' ||
-                          item.sportType === 'Trail Run',
+                          item.sport_type === 'Run' ||
+                          item.sport_type === 'Virtual Run' ||
+                          item.sport_type === 'Trail Run',
                       ).length
                     }
                   </div>
@@ -557,12 +559,12 @@ function App() {
                     {
                       activityData.filter(
                         item =>
-                          item.sportType === 'Workout' ||
-                          item.sportType === 'Weight Training' ||
-                          item.sportType === 'Crossfit' ||
-                          item.sportType ===
+                          item.sport_type === 'Workout' ||
+                          item.sport_type === 'Weight Training' ||
+                          item.sport_type === 'Crossfit' ||
+                          item.sport_type ===
                             'High Intensity Interval Training' ||
-                          item.sportType === 'Prestons Fitness',
+                          item.sport_type === 'Prestons Fitness',
                       ).length
                     }
                   </div>
@@ -632,19 +634,19 @@ function App() {
                 {topTenData.map(data => (
                   <tr key={data.id} className="even:bg-purple-100">
                     <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat capitalize">
-                      {data.firstName + ' ' + data.lastName}
+                      {data.first_name + ' ' + data.last_name}
                     </td>
                     <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
-                      {data.activityName}
+                      {data.activity_name}
                     </td>
                     <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
                       {Math.round(data.distance / 1000) + ' km'}
                     </td>
                     <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
-                      {Math.round(data.movingTime / 60) + ' mins'}
+                      {Math.round(data.moving_time / 60) + ' mins'}
                     </td>
                     <td className="whitespace-nowrap py-4 px-6 text-center text-sm font-medium  text-gray-700 font-montserrat">
-                      {data.sportType}
+                      {data.sport_type}
                     </td>
                   </tr>
                 ))}
