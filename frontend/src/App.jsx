@@ -197,8 +197,6 @@ function App() {
     getPrestonWorkouts()
   }, [])
 
-  console.log('sportType', sportType)
-
   return (
     <>
       <div id="form" className="mt-8 mb-4">
