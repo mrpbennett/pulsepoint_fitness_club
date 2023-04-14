@@ -293,7 +293,7 @@ function App() {
 
           <section
             className={`mb-8 ${
-              !formActive ? 'hidden' : 'inline'
+              formActive ? 'inline' : 'hidden'
             } flex items-center justify-center`}
           >
             <form className="flex flex-col w-[65%] mb-8">

@@ -38,7 +38,7 @@ def get_club_activities():
     url = "https://www.strava.com/api/v3/clubs/teampulsepoint/activities"
 
     headers = {"Authorization": f"Bearer {get_strava_token()}"}
-    param = {"per_page": 15, "page": 1}
+    param = {"per_page": 20, "page": 1}
     return requests.get(url, headers=headers, params=param).json()
 
 
@@ -77,8 +77,6 @@ def main():
     except Exception as error:
         raise error
 
-    print(f"incoming_activities: {incoming_activities} \n")
-
     # 2. Get activities from the database and place inside table_activites
     try:
         db_activities = supabase.table("PPFitnessActivities").select("*").execute()
@@ -86,14 +84,14 @@ def main():
         # clean up db_activities by removing id
         for db_activity in db_activities.data:
             result = {
-                "first_name": db_activity["firstName"],
-                "last_name": db_activity["lastName"],
-                "activity_name": db_activity["activityName"],
+                "first_name": db_activity["first_name"],
+                "last_name": db_activity["last_name"],
+                "activity_name": db_activity["activity_name"],
                 "distance": db_activity["distance"],
-                "moving_time": db_activity["movingTime"],
+                "moving_time": db_activity["moving_time"],
                 "sport_type": " ".join(
                     re.findall(
-                        r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))", db_activity["sportType"]
+                        r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))", db_activity["sport_type"]
                     )
                 ),
                 "earnings": db_activity["earnings"],
@@ -103,8 +101,6 @@ def main():
             table_activites.append(result)
     except Exception as error:
         raise error
-
-    print(f"table_activites: {table_activites} \n")
 
     # 3. Compare incoming_activities to table_activites and place the activities that
     # are not in the database inside activities_to_insert
