@@ -154,7 +154,7 @@ function App() {
               distance: distance === '' ? 0 : distance * 1000, // convert to metres
               moving_time: movingTime * 60, // convert to seconds
               sport_type: sportType,
-              earnings: 1,
+              earnings: 3,
               date: new Date().toISOString().split('T')[0],
             },
           ])
